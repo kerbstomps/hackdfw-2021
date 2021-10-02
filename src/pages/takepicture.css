@@ -1,0 +1,32 @@
+#word{
+  margin-bottom: 2rem;
+  font-style: italic;
+  font-size: 30px;
+  background: #a5a5a5;
+  padding: 20px;
+}
+
+#take-picture{
+  display: none;
+}
+
+#take-picture-btn{
+  display: flex;
+  align-items: center;
+
+  background: none;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+#take-picture-btn, #take-picture-btn span {
+  font-size: 40px;
+}
+
+#take-picture-btn .icon{
+  padding-right: 15px;
+}
+
+blockquote{
+  font-family: serif;
+}
