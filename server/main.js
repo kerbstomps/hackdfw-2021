@@ -9,6 +9,7 @@ app.use(express.json());
 
 // register endpoints
 const endpoints = require('./endpoints.js');
-endpoints(app);
 
 const client = new MongoClient(process.env.DATABASE_URI);
+
+endpoints(app, client);
