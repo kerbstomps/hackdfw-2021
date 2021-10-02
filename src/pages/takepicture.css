@@ -1,7 +1,7 @@
 #word{
   margin-bottom: 2rem;
   font-style: italic;
-  font-size: 30px;
+  font-size: 22px;
   background: #a5a5a5;
   padding: 20px;
 }
@@ -29,4 +29,30 @@
 
 blockquote{
   font-family: serif;
+}
+
+.image-and-caption{
+  margin-bottom: 1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.image-and-caption img{
+  display: block;
+  margin: 2px;
+  max-width: 100%;
+}
+
+.material-icons, .material-icons-outlined{
+  vertical-align: middle;
+}
+
+.card{
+  margin-bottom: 1em;
+}
+
+.card-media{
+  margin-bottom: 0;
 }
