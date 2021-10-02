@@ -5,9 +5,10 @@
   "version": "0.1.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
-    "express": "^4.17.1",
     "@fontsource/material-icons": "^4.5.0",
     "@fontsource/material-icons-outlined": "^4.5.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
     "gatsby": "^3.13.1",
     "gatsby-plugin-image": "^1.13.0",
     "gatsby-plugin-manifest": "^3.13.0",
