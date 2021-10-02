@@ -1,4 +1,5 @@
 module.exports = function(app, client) {
+    const getLabelsFromImage = require('./detectImage');
 
     app.get('/word', async (req, res) => {
         let nativeLanguage = req.query.nativeLanguage;
@@ -47,13 +48,19 @@ module.exports = function(app, client) {
             if (!imageInfo)
                 return new Error("Random image element not found.");
             
+            const awsId = wordDoc.awsIdentifier;
+            if (!awsId)
+                return new Error("AWS Identifier not found.");
+
+            console.log(wordDoc);
             res.json({
                 photo: imageInfo.data, 
                 location: imageInfo.location, 
                 photagrapher: imageInfo.photagrapher, 
                 nativeWord: nativeWord,
                 foreignLanguage: randomForeignLanguage,
-                foreignWord: randomForeignWord
+                foreignWord: randomForeignWord,
+                awsIdentifier: awsId
             });
 
         } catch (error) {
@@ -67,6 +74,37 @@ module.exports = function(app, client) {
     app.post('/image', async (req, res) => {
         try {
             // req.body has imageData, location, photographer, language, word
+            const { imageData, location, photographer, language, word } = req.body;
+        
+            const wordsDetected = await getLabelsFromImage(req.body.imageData);
+            console.log(wordsDetected);
+
+            await client.connect();
+            const db = client.db('data');
+            if (!db) 
+                return new Error("Could not connect do database.");
+
+            const collection = db.collection('translations');
+            if (!collection) 
+                return new Error("Collection does not exist");
+            
+            const document = await collection.findOne({awsIdentifier: {$in: wordsDetected}});
+            if (!document)
+                return res.json({ validated: false, points: 0});
+            
+            console.log(document);
+
+            document.images[language] = document.images[language] || [];
+            document.images[language].push({
+                data: imageData,
+                location,
+                photographer
+            });
+            
+            await collection.updateOne({awsIdentifier: {$in: wordsDetected}}, { $set: { images: document.images } });
+            
+            res.json({ validated: true, points: 100 });
+
             
         } catch (error) {
             console.error(error);
