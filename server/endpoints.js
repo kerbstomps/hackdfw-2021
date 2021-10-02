@@ -31,14 +31,10 @@ module.exports = function(app, client) {
             const foreignTranslations = Object.entries(wordDoc.translations).filter((translation) => translation[0]!==nativeLanguage);
             if (!foreignTranslations)
                 return new Error("Could not find translations other than native language.");
-            
-            console.log(foreignTranslations);
 
             const randomForeignTranslation = getRandomElement(foreignTranslations);
             if (!randomForeignTranslation)
                 return new Error("Could not find random foreign translation.");
-
-            console.log(randomForeignTranslation);
 
             const randomForeignLanguage = randomForeignTranslation[0];
             const randomForeignWord = randomForeignTranslation[1];
@@ -50,8 +46,6 @@ module.exports = function(app, client) {
 
             if (!imageInfo)
                 return new Error("Random image element not found.");
-
-            console.log(imageInfo);
             
             res.json({
                 photo: imageInfo.data, 
@@ -64,19 +58,16 @@ module.exports = function(app, client) {
 
         } catch (error) {
             console.error(error);
-            return `ERROR: ${error}`;
+            res.send(`ERROR: ${error}`);
         } finally {
             await client.close();
         }
     });
 
-    app.post('/content', async (req, res) => {
+    app.post('/image', async (req, res) => {
         try {
-            await client.connect();
-            const db = client.db('data');
-            const collection = db.collection('translations');
-            const document = await collection.insertOne(/*stuff*/);
-            return `${document.insertedId}`;
+            // req.body has imageData, location, photographer, language, word
+            
         } catch (error) {
             console.error(error);
             return `ERROR: ${error}`;
@@ -84,8 +75,46 @@ module.exports = function(app, client) {
             await client.close();
         }
     });
+    
+    app.get('/user', async(req, res) => {
+        try {
+            await client.connect();
+            const db = client.db('data');
+            let user = await db.collection('users').findOne({ name: req.query.name });
+            if (!user)
+                user = await createNewUser(req, res);
+            
+            res.json(user);
+    
+        } catch (error) {
+            console.error(error);
+            res.send(`ERROR: ${error}`);
+        } finally {
+            await client.close();
+        }
+    });
+    
+    app.post('/user', async (req, res) => {
+        await createNewUser(req, res);
+    });
 
+    async function createNewUser(req, res) {
+        try {
+            await client.connect();
+            const db = client.db('data');
+            await db.collection('users').insertOne({ name: req.query.name, points: 0});
+            console.log(req.query.name + " succesfully added to users.");
+            return await db.collection('users').findOne( {name: req.query.name });
+    
+        } catch (error) {
+            console.error(error);
+            res.send(`ERROR: ${error}`);
+        } finally {
+            await client.close();
+        }
+    };
 };
+
 
 function getRandomElement(list) {
     return list[Math.floor(Math.random() * list.length)];
