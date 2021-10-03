@@ -8,6 +8,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardMedia from "@mui/material/CardMedia";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import PersonIcon from "@mui/icons-material/Person";
 import Button from "@mui/material/Button";
 import {PhotoCamera} from "@mui/icons-material";
 import {
@@ -73,7 +74,7 @@ const UploadedPicture = (props) => {
             body: JSON.stringify(postBody)
         })).json();
 
-        console.log("got resp", resp);
+        props.onUploadedImageResponse(resp);
     };
     return (<>
         <Card sx={{maxWidth: 300}} className="card">
@@ -96,8 +97,12 @@ class TakePicture extends Component {
             uploadedImage: undefined,
             isLoaded: false,
             apiData: null,
-            error: null
+            error: null,
+            newPoints: null,
+            validationFailure: false
         };
+
+        this.onUploadedImageResponse = this.onUploadedImageResponse.bind(this);
     }
 
 
@@ -110,13 +115,26 @@ class TakePicture extends Component {
         return found ? found.description : null;
     }
 
+    onUploadedImageResponse(response){
+        const {validated, points} = response;
+
+        console.log(validated, points);
+
+        if(validated){
+            this.setState({newPoints: points});
+        }else{
+            this.setState({validationFailure: true});
+        }
+    }
+
     async updateData() {
         try {
             const result = await (await fetch(`${apiHost}/word?nativeLanguage=en&apiKey=hackdfw2021`)).json();
 
             this.setState({
                 isLoaded: true,
-                apiData: result
+                apiData: result,
+                uploadedImage: undefined
             });
         }catch(error) {
             this.setState({
@@ -127,7 +145,7 @@ class TakePicture extends Component {
     }
 
     render() {
-        const {error, isLoaded, apiData} = this.state;
+        const {error, isLoaded, apiData, validationFailure, newPoints} = this.state;
         const {foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id} = apiData || {};
 
         const foreignLanguageNatural = this.langCodeToLang(foreignLanguage);
@@ -145,8 +163,16 @@ class TakePicture extends Component {
         };
 
         const handleClose = (e) => {
-            console.log(e);
             this.updateData();
+        };
+
+        const takeNewPicture = (wasSuccess) => {
+            if(wasSuccess) {
+                this.setState({validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined});
+                this.updateData();
+            }else{
+                this.setState({validationFailure: false, newPoints: null, uploadedImage: undefined});
+            }
         };
 
         if(error) {
@@ -157,7 +183,7 @@ class TakePicture extends Component {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"An unexpected error occurred"}
+                    An unexpected error occurred
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
@@ -173,9 +199,50 @@ class TakePicture extends Component {
         }else if(isLoaded) {
             console.log(nativeWord);
             return (<Layout>
+                {validationFailure ? <Dialog
+                    open={isOpen}
+                    onClose={() => takeNewPicture(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        Uh oh!
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Your image was not recognized as a {nativeWord}!
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => takeNewPicture(false)} autoFocus>
+                            Try again
+                        </Button>
+                    </DialogActions>
+                </Dialog> : undefined}
+
+                {newPoints ? <Dialog
+                    open={isOpen}
+                    onClose={() => takeNewPicture(true)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        Congratulations!
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Your image was uploaded and you gained {newPoints} points!
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => takeNewPicture(true)} autoFocus>
+                            Continue
+                        </Button>
+                    </DialogActions>
+                </Dialog> : undefined}
+
                 <Seo title="Take a picture!"/>
-                <h1>Look around you for {nativeWord}</h1>
-                <blockquote id="word">{foreignWord} ({foreignLanguageNatural})</blockquote>
+                <h1>Look around you for {foreignWord} ({foreignLanguageNatural})</h1>
 
                 <Stack direction="row" spacing={1}>
                     <Card sx={{maxWidth: 300}} className="card">
@@ -188,8 +255,13 @@ class TakePicture extends Component {
                         <CardContent>
                             <Stack alignItems="center"
                                    direction="row" spacing={1}>
+                                <PersonIcon/><Typography variant="body2"
+                                                         color="text.secondary">{photographer}</Typography>
+                            </Stack>
+                            <Stack alignItems="center"
+                                   direction="row" spacing={1}>
                                 <LocationOnIcon/><Typography variant="body2"
-                                                             color="text.secondary">By {photographer} in {location}</Typography>
+                                                             color="text.secondary">{location}</Typography>
                             </Stack>
                         </CardContent>
                     </Card>
@@ -204,7 +276,7 @@ class TakePicture extends Component {
                         </label>
 
 
-                        {this.state.uploadedImage && <UploadedPicture uploaded={this.state.uploadedImage} nativeWord={nativeWord} awsIdentifier={awsIdentifier} id={id}/>}
+                        {this.state.uploadedImage && <UploadedPicture uploaded={this.state.uploadedImage} nativeWord={nativeWord} awsIdentifier={awsIdentifier} id={id} onUploadedImageResponse={this.onUploadedImageResponse} />}
                     </div>
                 </Stack>
             </Layout>);
@@ -217,5 +289,6 @@ class TakePicture extends Component {
         }
     }
 }
+
 
 export default TakePicture;
