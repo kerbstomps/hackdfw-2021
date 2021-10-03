@@ -160,13 +160,31 @@ module.exports = function(app, client, apiKey) {
 
     app.get('/translate', async (req, res, next) => {
         const { str, to } = req.query;
-        const translatedText = await translateString(to, str);
-        if (translatedText)
-            res.json({ translated: translatedText });
-        else {
+        let translatedStrings = [];
+        try {
+            if (typeof str != "string"){
+                const promises = str.map(element => {
+                    const translatedString = translateString(to, element);
+                    return translatedString;
+    
+                });
+                translatedStrings = await Promise.all(promises);
+            }
+            else {
+                translatedStrings.push(await translateString(to, str));
+            }
+            
+        } catch (error) {
             res.status(500);
-            res.json({ message: "Error: Could not translate string." });
+            return res.json({ message: error.toString() });
         }
+        
+        if (translatedStrings.length === 0) {
+            res.status(500);
+            return res.json({ message: "Error: Empty translated array." })
+        }
+        
+        res.json({ translated: translatedStrings });
     });
 
     async function createNewUser(req, res) {

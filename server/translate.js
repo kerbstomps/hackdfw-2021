@@ -9,12 +9,8 @@ const translateString = async (langTo, text) => {
         Text: text,
         TerminologyNames: []
     }
-    try {
-        const translation = await awsTranslate.translateText(params).promise();
-        return translation.TranslatedText;
-    } catch (error) {
-        return false;
-    }
+    const translation = await awsTranslate.translateText(params).promise();
+    return translation.TranslatedText;
 };
 
 module.exports = translateString;
