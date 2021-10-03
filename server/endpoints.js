@@ -56,7 +56,7 @@ module.exports = function(app, client) {
             res.json({
                 photo: imageInfo.data, 
                 location: imageInfo.location, 
-                photagrapher: imageInfo.photagrapher, 
+                photographer: imageInfo.photographer, 
                 nativeWord: nativeWord,
                 foreignLanguage: randomForeignLanguage,
                 foreignWord: randomForeignWord,
@@ -94,6 +94,8 @@ module.exports = function(app, client) {
             
             console.log(document);
 
+            const wordFound = document.translations.contains([ word, language ]);
+            
             document.images[language] = document.images[language] || [];
             document.images[language].push({
                 data: imageData,
