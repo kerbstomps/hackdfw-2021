@@ -56,3 +56,14 @@ blockquote{
 .card-media{
   margin-bottom: 0;
 }
+
+#flex-stack{
+  flex-direction: row;
+  display: none !important;
+}
+
+@media only screen and (min-width: 536px) {
+  #flex-stack{
+    flex-direction: column !important;
+  }
+}

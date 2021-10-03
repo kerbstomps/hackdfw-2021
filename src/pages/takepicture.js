@@ -10,7 +10,8 @@ import CardMedia from "@mui/material/CardMedia";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PersonIcon from "@mui/icons-material/Person";
 import Button from "@mui/material/Button";
-import { PhotoCamera } from "@mui/icons-material";
+import {PhotoCamera} from "@mui/icons-material";
+
 import {
     Dialog,
     DialogActions,
@@ -21,8 +22,11 @@ import {
     Stack
 } from "@mui/material";
 import styled from "@emotion/styled";
-import { Component } from "react";
+import {Component} from "react";
+import {navigate} from "../../.cache/commonjs/gatsby-browser-entry";
 const langs = require("../data/languages.json");
+const countryToCoords = require("../data/countryToCoords.json");
+const countryCodeToCoords = require("../data/countryCodeToCoords.json");
 
 const apiHost = "http://3.133.115.92:3000"
 const photographer = "Adam";
@@ -182,8 +186,9 @@ class TakePicture extends Component {
     }
 
     render() {
-        const { error, isLoaded, apiData, validationFailure, newPoints, translatedWords } = this.state;
-        const { foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id } = apiData || {};
+        const {error, isLoaded, apiData, validationFailure, newPoints, translatedWords } = this.state;
+        const {foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id} = apiData || {};
+        const imageLocation = location;
 
         const foreignLanguageNatural = this.langCodeToLang(foreignLanguage);
         console.log(translatedWords);
@@ -204,12 +209,21 @@ class TakePicture extends Component {
             this.updateData();
         };
 
-        const takeNewPicture = (wasSuccess) => {
-            if (wasSuccess) {
-                this.setState({ validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined });
-                this.updateData();
-            } else {
-                this.setState({ validationFailure: false, newPoints: null, uploadedImage: undefined });
+        const takeNewPicture = async (wasSuccess) => {
+            if(wasSuccess) {
+                // this.setState({validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined});
+                // this.updateData();
+
+                const lad1 = countryToCoords[imageLocation][1];
+                const long1 = countryToCoords[imageLocation][0];
+
+                const myCountry = (await (await fetch("http://ip-api.com/json")).json()).country;
+                const lad2 = countryToCoords[myCountry][1];
+                const long2 = countryToCoords[myCountry][0];
+
+                navigate("/map", {state: {coords: [[lad1, long1], [lad2, long2]], countries: [imageLocation, myCountry]}});
+            }else{
+                this.setState({validationFailure: false, newPoints: null, uploadedImage: undefined});
             }
         };
 
@@ -237,7 +251,7 @@ class TakePicture extends Component {
         } else if (isLoaded) {
             
             return (<Layout>
-                {validationFailure ? <Dialog
+                {validationFailure && <Dialog
                     open={isOpen}
                     onClose={() => takeNewPicture(false)}
                     aria-labelledby="alert-dialog-title"
@@ -256,9 +270,9 @@ class TakePicture extends Component {
                             {translatedWords[4]}
                         </Button>
                     </DialogActions>
-                </Dialog> : undefined}
+                </Dialog>}
 
-                {newPoints ? <Dialog
+                {newPoints && <Dialog
                     open={isOpen}
                     onClose={() => takeNewPicture(true)}
                     aria-labelledby="alert-dialog-title"
@@ -277,7 +291,7 @@ class TakePicture extends Component {
                             {translatedWords[8]}
                         </Button>
                     </DialogActions>
-                </Dialog> : undefined}
+                </Dialog>}
 
                 <Seo title="Take a picture!" />
                 <h1>{translatedWords[9]} <b>{foreignWord}</b> ({foreignLanguageNatural})</h1>
