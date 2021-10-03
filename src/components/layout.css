@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Indie+Flower');
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Noto+Sans+Display');
 
 html {
   -ms-text-size-adjust: 100%;
@@ -7,10 +7,10 @@ html {
   font: 112.5%/1.45em georgia, serif, sans-serif;
   box-sizing: border-box;
   overflow-y: scroll;
-  
+  font-family: 'Noto Sans Display', sans-serif;
 }
 
-h1 {
+#sitetitle {
   font-family: 'Indie Flower', cursive;
 }
 
