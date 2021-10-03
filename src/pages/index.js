@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
 
-const defaultPrompt = "Hi, what's your name?";
+const wordsToTranslate = ["Hi, what's your name?", "Hello"];
 const apiHost = "http://3.133.115.92:3000"
 
 
@@ -19,11 +19,18 @@ class IndexPage extends React.Component {
     super(props);
 
     this.state = {
-      name: ""
+      name: "",
+      translatedWords: {},
+      submitted: false
     }
 
     this.onChangeName = this.onChangeName.bind(this);
     this.onSubmitName = this.onSubmitName.bind(this);
+    this.translateWords = this.translateWords.bind(this);
+  }
+
+  componentDidMount() {
+    this.translateWords(wordsToTranslate);
   }
 
   onChangeName(e) {
@@ -31,23 +38,50 @@ class IndexPage extends React.Component {
   }
 
   onSubmitName(e) {
-    this.getUser();
+    this.setState({ submitted: true }, () => {
+      this.getUser();
+    });
   }
 
   async getUser() {
     let { name } = this.state;
     try {
         const result = await (await fetch(`${apiHost}/user?name=${name}&apiKey=hackdfw2021`)).json();
-        if (result)
-          navigate("/takepicture/", { state: result });
-          
+        if (result) {
+          setTimeout(() => navigate("/takepicture/", { state: result }), 500);
+        }
+
     } catch(error) {
         console.log(error);
     }
 }
 
+async translateWords(words) {
+  if (words) {
+    const fields = words.join('&str=');
+    const lang = navigator.languages.filter(lang => lang.length === 2)[0];
+    
+    try {
+      const result = await (await fetch(`${apiHost}/translate?to=${lang}&str=${fields}&apiKey=hackdfw2021`)).json();
+      if (result) {
+        this.setState({
+          translatedWords: result.translated
+        });
+      }
+      
+    } catch(error) {
+        console.log(error);
+    }
+  }
+}
+
   render() {
-    let { name } = this.state;
+    let { name, translatedWords, submitted } = this.state;
+
+    console.log(translatedWords);
+
+    let prompt = translatedWords[0];
+    let hello = translatedWords[1];
 
     return (
       <Layout>
@@ -60,7 +94,11 @@ class IndexPage extends React.Component {
               alignItems: 'center',
             }}
           >
-            <h1>Hi, what's your name?</h1>
+            { !submitted ? 
+              <h1>{prompt || ""}</h1>
+              :
+              <h1>{`${hello}, ${name}!`}</h1>
+            }
             <TextField
                 margin="normal"
                 fullWidth

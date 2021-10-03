@@ -94,21 +94,24 @@ class TakePicture extends Component {
         super(props);
 
         console.log("props:", props.location);
-
+        
         this.state = {
             uploadedImage: undefined,
             isLoaded: false,
             apiData: null,
             error: null,
             newPoints: null,
-            validationFailure: false
+            validationFailure: false,
+            name: props.location.state.name,
+            points: props.location.state.points,
         };
 
         this.onUploadedImageResponse = this.onUploadedImageResponse.bind(this);
     }
 
-
     componentDidMount(){
+        let { name } = this.state;
+
         this.updateData();
     }
 
