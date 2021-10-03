@@ -1,7 +1,8 @@
 const ObjectID = require('mongodb').ObjectID;
+const getLabelsFromImage = require('./detectImage');
+const translateString = require('./translate');
 
 module.exports = function(app, client, apiKey) {
-    const getLabelsFromImage = require('./detectImage');
 
     app.use((req, res, next) => {
         if (apiKey === req.query.apiKey)
@@ -155,6 +156,17 @@ module.exports = function(app, client, apiKey) {
 
     app.post('/user', async (req, res, next) => {
         await createNewUser(req, res);
+    });
+
+    app.get('/translate', async (req, res, next) => {
+        const { str, to } = req.query;
+        const translatedText = await translateString(to, str);
+        if (translatedText)
+            res.json({ translated: translatedText });
+        else {
+            res.status(500);
+            res.json({ message: "Error: Could not translate string." });
+        }
     });
 
     async function createNewUser(req, res) {
