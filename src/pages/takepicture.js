@@ -11,6 +11,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PersonIcon from "@mui/icons-material/Person";
 import Button from "@mui/material/Button";
 import {PhotoCamera} from "@mui/icons-material";
+import CircularProgress from '@mui/material/CircularProgress';
 
 import {
     Dialog,
@@ -63,11 +64,24 @@ function getBase64(file) {
     });
 }
 
-const UploadedPicture = (props) => {
-    const confirmUpload = async () => {
+class UploadedPicture extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isLoading: false
+        };
+
+        this.props = props;
+
+        this.confirmUpload = this.confirmUpload.bind(this);
+    }
+
+    async confirmUpload  () {
+        this.setState({isLoading: true});
         const location = (await (await fetch("http://ip-api.com/json")).json()).country;
-        const dataUri = props.uploaded;
-        const { nativeWord, awsIdentifier, id } = props;
+        const dataUri = this.props.uploaded;
+        const { nativeWord, awsIdentifier, id } = this.props;
 
         const lang = navigator.languages.filter(lang => lang.length === 2);
 
@@ -92,20 +106,26 @@ const UploadedPicture = (props) => {
             body: JSON.stringify(postBody)
         })).json();
 
-        props.onUploadedImageResponse(resp);
-    };
-    return (<>
-        <Card className="card">
-            <CardMedia
-                component="img"
-                image={props.uploaded}
-                alt="Uploaded image"
-                className="card-media"
-            />
-        </Card>
-        <Button color="primary" aria-label="upload picture" component="span" variant="contained" onClick={confirmUpload}>Confirm Upload</Button>
-    </>);
-};
+        this.setState({isLoading: false});
+        this.props.onUploadedImageResponse(resp);
+    }
+
+    render() {
+        return (<>
+            <Card className="card">
+                <CardMedia
+                    component="img"
+                    image={this.props.uploaded}
+                    alt="Uploaded image"
+                    className="card-media"
+                />
+            </Card>
+            <Button color="primary" aria-label="upload picture" component="span" variant="contained" onClick={this.confirmUpload}>Confirm Upload</Button>
+
+            { this.state.isLoading && <CircularProgress />}
+        </>);
+    }
+}
 
 class TakePicture extends Component {
     constructor(props) {
