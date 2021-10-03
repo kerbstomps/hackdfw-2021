@@ -109,10 +109,9 @@ module.exports = function(app, client, apiKey) {
             if (!collection)
                 return new Error("Collection does not exist");
 
-            const document = await collection.findOne({/*awsIdentifier: {$in: wordsDetected}, */_id: new ObjectID(id)});
-            console.log(document);
+            const document = await collection.findOne({ awsIdentifier: {$in: wordsDetected} });
 
-            if (document && document.translations[language] && document.translations[language]===word ) {
+            if (document && document.translations[language] && document._id.toString()===id ) {
                 document.images[language] = document.images[language] || [];
                 document.images[language].push({
                     data: imageData,
