@@ -11,8 +11,8 @@
     "@fontsource/material-icons-outlined": "^4.5.0",
     "@mui/icons-material": "^5.0.1",
     "@mui/material": "^5.0.2",
-    "express": "^4.17.1",
     "dotenv": "^10.0.0",
+    "express": "^4.17.1",
     "gatsby": "^3.13.1",
     "gatsby-plugin-image": "^1.13.0",
     "gatsby-plugin-manifest": "^3.13.0",
@@ -27,6 +27,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
+    "react-simple-maps": "^2.3.0",
     "react-svg-worldmap": "^2.0.0-alpha.0"
   },
   "devDependencies": {

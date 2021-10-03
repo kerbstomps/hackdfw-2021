@@ -11,6 +11,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PersonIcon from "@mui/icons-material/Person";
 import Button from "@mui/material/Button";
 import {PhotoCamera} from "@mui/icons-material";
+
 import {
     Dialog,
     DialogActions,
@@ -22,7 +23,10 @@ import {
 } from "@mui/material";
 import styled from "@emotion/styled";
 import {Component} from "react";
+import {navigate} from "../../.cache/commonjs/gatsby-browser-entry";
 const langs = require("../data/languages.json");
+const countryToCoords = require("../data/countryToCoords.json");
+const countryCodeToCoords = require("../data/countryCodeToCoords.json");
 
 const apiHost = "http://3.133.115.92:3000"
 const photographer = "Adam";
@@ -149,6 +153,7 @@ class TakePicture extends Component {
     render() {
         const {error, isLoaded, apiData, validationFailure, newPoints} = this.state;
         const {foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id} = apiData || {};
+        const imageLocation = location;
 
         const foreignLanguageNatural = this.langCodeToLang(foreignLanguage);
 
@@ -168,10 +173,19 @@ class TakePicture extends Component {
             this.updateData();
         };
 
-        const takeNewPicture = (wasSuccess) => {
+        const takeNewPicture = async (wasSuccess) => {
             if(wasSuccess) {
-                this.setState({validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined});
-                this.updateData();
+                // this.setState({validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined});
+                // this.updateData();
+
+                const lad1 = countryToCoords[imageLocation][1];
+                const long1 = countryToCoords[imageLocation][0];
+
+                const myCountry = (await (await fetch("http://ip-api.com/json")).json()).country;
+                const lad2 = countryToCoords[myCountry][1];
+                const long2 = countryToCoords[myCountry][0];
+
+                navigate("/map", {state: {coords: [[lad1, long1], [lad2, long2]], countries: [imageLocation, myCountry]}});
             }else{
                 this.setState({validationFailure: false, newPoints: null, uploadedImage: undefined});
             }
@@ -244,9 +258,9 @@ class TakePicture extends Component {
                 </Dialog> : undefined}
 
                 <Seo title="Take a picture!"/>
-                <h1>Look around you for {foreignWord} ({foreignLanguageNatural})</h1>
+                <Typography variant="h3" component="div" gutterBottom>Look around you for {foreignWord} ({foreignLanguageNatural})</Typography>
 
-                <Stack direction="row" spacing={1}>
+                <div id="flex-stack">
                     <Card sx={{maxWidth: 300}} className="card">
                         <CardMedia
                             component="img"
@@ -280,7 +294,7 @@ class TakePicture extends Component {
 
                         {this.state.uploadedImage && <UploadedPicture uploaded={this.state.uploadedImage} nativeWord={nativeWord} awsIdentifier={awsIdentifier} id={id} onUploadedImageResponse={this.onUploadedImageResponse} />}
                     </div>
-                </Stack>
+                </div>
             </Layout>);
         }else{
             return (<Layout>
