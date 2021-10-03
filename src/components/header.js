@@ -1,34 +1,29 @@
 import * as React from "react"
 import PropTypes from "prop-types"
-import { Link } from "gatsby"
+
+import { StaticImage } from "gatsby-plugin-image"
+
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
 
 const Header = ({ siteTitle }) => (
-  <header
-    style={{
-      background: `rebeccapurple`,
-      marginBottom: `1.45rem`,
-    }}
-  >
-    <div
-      style={{
-        margin: `0 auto`,
-        maxWidth: 960,
-        padding: `1.45rem 1.0875rem`,
-      }}
-    >
-      <h1 style={{ margin: 0 }}>
-        <Link
-          to="/"
-          style={{
-            color: `white`,
-            textDecoration: `none`,
-          }}
-        >
-          {siteTitle}
-        </Link>
-      </h1>
-    </div>
-  </header>
+  <Box sx={{ flexGrow: 1 }}>
+    <AppBar position="static">
+      <Toolbar>
+        <div style={{padding: "10px"}}>
+          <StaticImage src="../images/logo-no-circle.png" 
+            alt="Picture the World" 
+            transformOptions={{ fit: "inside"}}
+            width={64}
+            height={64}
+            placeholder="blurred"
+          />
+        </div>
+        <h1>{siteTitle}</h1>
+      </Toolbar>
+    </AppBar>
+  </Box>
 )
 
 Header.propTypes = {

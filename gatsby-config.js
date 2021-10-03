@@ -1,9 +1,9 @@
 module.exports = {
   siteMetadata: {
-    title: `HackDFW 2021`,
-    description: `todo`,
-    author: `todo`,
-    siteUrl: `https://gatsbystarterdefaultsource.gatsbyjs.io/`,
+    title: `Picture the World`,
+    description: `An interactive game that could represent different cultures and diversities by educating players with other languages and encouraging active engagement with learning.`,
+    author: `Kerby Kaska, Alexis Kaufman, Max Hogan, Brad Johnson, Adam Szumski`,
+    siteUrl: `https://github.com/kerbstomps/hackdfw-2021`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
@@ -28,7 +28,7 @@ module.exports = {
         // https://css-tricks.com/meta-theme-color-and-trickery/
         // theme_color: `#663399`,
         display: `minimal-ui`,
-        icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+        icon: `src/images/GLOBE_ONLY.png`, // This path is relative to the root of the site.
       },
     },
     {

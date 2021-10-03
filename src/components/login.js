@@ -1,8 +1,8 @@
 import * as React from "react"
 
-import Layout from "../components/layout"
+import Layout from "./layout"
 
-const WordPage = (word, picture) => (
+const Login = (word) => (
   <Layout>
     <Seo title="Your Word Is" />
     <p>your word is {word}</p>
