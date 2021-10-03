@@ -10,12 +10,20 @@ import CardMedia from "@mui/material/CardMedia";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import Button from "@mui/material/Button";
 import {PhotoCamera} from "@mui/icons-material";
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack} from "@mui/material";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    LinearProgress,
+    Stack
+} from "@mui/material";
 import styled from "@emotion/styled";
 import {Component} from "react";
-import { navigate } from "gatsby"
 const langs = require("../data/languages.json");
 
+const apiHost = "http://3.133.115.92:3000"
 const photographer = "Adam";
 
 
@@ -56,7 +64,7 @@ const UploadedPicture = (props) => {
 
         console.log("post body", postBody);
 
-        const resp = await (await fetch("http://localhost:3000/image?apiKey=hackdfw2021", {
+        const resp = await (await fetch(`${apiHost}/image?apiKey=hackdfw2021`, {
             method: 'POST',
             cache: 'no-cache',
             headers: {
@@ -104,7 +112,7 @@ class TakePicture extends Component {
 
     async updateData() {
         try {
-            const result = await (await fetch("http://localhost:3000/word?nativeLanguage=en&apiKey=hackdfw2021")).json();
+            const result = await (await fetch(`${apiHost}/word?nativeLanguage=en&apiKey=hackdfw2021`)).json();
 
             this.setState({
                 isLoaded: true,
@@ -201,7 +209,11 @@ class TakePicture extends Component {
                 </Stack>
             </Layout>);
         }else{
-            return (<div>Loading...</div>);
+            return (<Layout>
+                <Typography variant="overline" display="block" gutterBottom>Finding an image...
+                </Typography>
+                <LinearProgress />
+            </Layout>);
         }
     }
 }
