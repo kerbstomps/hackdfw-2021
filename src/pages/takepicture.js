@@ -110,7 +110,7 @@ const UploadedPicture = (props) => {
 class TakePicture extends Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             uploadedImage: undefined,
             isLoaded: false,
@@ -118,8 +118,8 @@ class TakePicture extends Component {
             error: null,
             newPoints: null,
             validationFailure: false,
-            name: props.location.state.name,
-            points: props.location.state.points,
+            name: props.location.state ? props.location.state.name : "Adam",
+            points: props.location.state ? props.location.state.points : 0,
         };
 
         this.onUploadedImageResponse = this.onUploadedImageResponse.bind(this);
@@ -146,13 +146,13 @@ class TakePicture extends Component {
                 translatedWords: result.translated
               });
             }
-            
+
           } catch(error) {
               console.log(error);
           }
         }
       }
-      
+
     langCodeToLang(langCode) {
         const found = langs.find(x => x.code === langCode);
         return found ? found.description : null;
@@ -249,7 +249,7 @@ class TakePicture extends Component {
                 </DialogActions>
             </Dialog>);
         } else if (isLoaded) {
-            
+
             return (<Layout>
                 {validationFailure && <Dialog
                     open={isOpen}
