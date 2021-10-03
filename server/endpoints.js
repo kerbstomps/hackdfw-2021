@@ -1,7 +1,14 @@
-module.exports = function(app, client) {
+module.exports = function(app, client, apiKey) {
     const getLabelsFromImage = require('./detectImage');
 
-    app.get('/word', async (req, res) => {
+    app.use((req, res, next) => {
+        if (apiKey === req.query.apiKey)
+            next();
+        else
+            res.send("ERROR: Could not authenticate request.");
+    });
+
+    app.get('/word', async (req, res, next) => {
         let nativeLanguage = req.query.nativeLanguage;
         try {
             await client.connect();
@@ -71,7 +78,7 @@ module.exports = function(app, client) {
         }
     });
 
-    app.post('/image', async (req, res) => {
+    app.post('/image', async (req, res, next) => {
         try {
             // req.body has imageData, location, photographer, language, word
             const { imageData, location, photographer, language, word } = req.body;
@@ -114,7 +121,7 @@ module.exports = function(app, client) {
         }
     });
     
-    app.get('/user', async(req, res) => {
+    app.get('/user', async(req, res, next) => {
         try {
             await client.connect();
             const db = client.db('data');
@@ -132,7 +139,7 @@ module.exports = function(app, client) {
         }
     });
     
-    app.post('/user', async (req, res) => {
+    app.post('/user', async (req, res, next) => {
         await createNewUser(req, res);
     });
 

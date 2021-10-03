@@ -12,7 +12,5 @@ app.listen(3000);
 
 // register endpoints
 const endpoints = require('./endpoints.js');
-
 const client = new MongoClient(process.env.DATABASE_URI);
-
-endpoints(app, client);
+endpoints(app, client, process.env.API_KEY);
