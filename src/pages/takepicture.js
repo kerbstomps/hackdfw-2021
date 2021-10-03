@@ -72,7 +72,7 @@ class TakePicture extends Component {
 
     async updateData() {
         try {
-            const result = await (await fetch("https://poop")).json();
+            const result = await (await fetch("http://3.133.115.92:3000/word?nativeLanguage=en")).json();
 
             this.setState({
                 isLoaded: true,
@@ -87,12 +87,9 @@ class TakePicture extends Component {
     }
 
     render() {
-        const word = "un zapato";
-        const photographer = "Steve";
-        const location = "Somewhere";
-        const src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAIAAAC3LO29AAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TRSkVBTuIOGSoThbELxy1CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx6uDirKuDqyAIfoC4uTkpukiJ/0sKLWI8OO7Hu3uPu3eAUC8zzeoYAzTdNlOJuJjJropdrwhBQB9imJKZZcxJUhK+4+seAb7exXiW/7k/R4+asxgQEIlnmWHaxBvE05u2wXmfOMKKskp8Tjxq0gWJH7muePzGueCywDMjZjo1TxwhFgttrLQxK5oa8SRxVNV0yhcyHquctzhr5Spr3pO/MJzTV5a5TnMICSxiCRJEKKiihDJs6qsEnRQLKdqP+/gHXb9ELoVcJTByLKACDbLrB/+D391a+YlxLykcBzpfHOdjGOjaBRo1x/k+dpzGCRB8Bq70lr9SB2Y+Sa+1tOgR0LsNXFy3NGUPuNwBBp4M2ZRdKUhTyOeB9zP6pizQfwuE1rzemvs4fQDS1FXyBjg4BEYKlL3u8+7u9t7+PdPs7wenInK8muCaHAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+UKAhAxOwGUvV0AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAXElEQVR42u3PAQ0AAAgDoGv/ztrjgwbMpdzG0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQsM8Dn84BlefWENIAAAAASUVORK5CYII=";
-
-        const {error, isLoaded} = this.state;
+        const {error, isLoaded, apiData} = this.state;
+        const {foreignWord, foreignLanguage, location, photographer, photo} = apiData || {};
+        console.log(apiData);
 
         let isOpen = true;
 
@@ -136,13 +133,13 @@ class TakePicture extends Component {
             return (<Layout>
                 <Seo title="Take a picture!"/>
                 <h1>Look around you for</h1>
-                <blockquote id="word">{word}</blockquote>
+                <blockquote id="word">{foreignLanguage}: {foreignWord}</blockquote>
 
                 <Stack direction="row" spacing={1}>
                     <Card sx={{maxWidth: 300}} className="card">
                         <CardMedia
                             component="img"
-                            image={src}
+                            image={photo}
                             alt="user image"
                             className="card-media"
                         />
