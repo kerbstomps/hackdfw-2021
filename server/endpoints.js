@@ -40,7 +40,7 @@ module.exports = function(app, client, apiKey) {
             const nativeTranslation = Object.entries(wordDoc.translations).filter((translation) => translation[0]===nativeLanguage)[0];
             if (!nativeTranslation)
                 throw new Error("Could not find native translation in translations.");
-            
+
             const nativeWord = nativeTranslation[1];
             if (!nativeWord)
                 throw new Error("Could not find native word in translations.");
@@ -111,7 +111,6 @@ module.exports = function(app, client, apiKey) {
 
             const document = await collection.findOne({/*awsIdentifier: {$in: wordsDetected}, */_id: new ObjectID(id)});
             console.log(document);
-            debugger;
 
             if (document && document.translations[language] && document.translations[language]===word ) {
                 document.images[language] = document.images[language] || [];
