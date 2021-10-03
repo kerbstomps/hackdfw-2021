@@ -8,6 +8,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardMedia from "@mui/material/CardMedia";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import PersonIcon from "@mui/icons-material/Person";
 import Button from "@mui/material/Button";
 import {PhotoCamera} from "@mui/icons-material";
 import {
@@ -167,10 +168,10 @@ class TakePicture extends Component {
 
         const takeNewPicture = (wasSuccess) => {
             if(wasSuccess) {
-                this.setState({validationFailure: false, newPoints: null, isLoaded: false});
+                this.setState({validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined});
                 this.updateData();
             }else{
-                this.setState({validationFailure: false, newPoints: null});
+                this.setState({validationFailure: false, newPoints: null, uploadedImage: undefined});
             }
         };
 
@@ -241,8 +242,7 @@ class TakePicture extends Component {
                 </Dialog> : undefined}
 
                 <Seo title="Take a picture!"/>
-                <h1>Look around you for {nativeWord}</h1>
-                <blockquote id="word">{foreignWord} ({foreignLanguageNatural})</blockquote>
+                <h1>Look around you for {foreignWord} ({foreignLanguageNatural})</h1>
 
                 <Stack direction="row" spacing={1}>
                     <Card sx={{maxWidth: 300}} className="card">
@@ -255,8 +255,13 @@ class TakePicture extends Component {
                         <CardContent>
                             <Stack alignItems="center"
                                    direction="row" spacing={1}>
+                                <PersonIcon/><Typography variant="body2"
+                                                         color="text.secondary">{photographer}</Typography>
+                            </Stack>
+                            <Stack alignItems="center"
+                                   direction="row" spacing={1}>
                                 <LocationOnIcon/><Typography variant="body2"
-                                                             color="text.secondary">By {photographer} in {location}</Typography>
+                                                             color="text.secondary">{location}</Typography>
                             </Stack>
                         </CardContent>
                     </Card>

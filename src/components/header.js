@@ -20,7 +20,7 @@ const Header = ({ siteTitle }) => (
             placeholder="blurred"
           />
         </div>
-        <h1>{siteTitle}</h1>
+        <h1 id="sitetitle">{siteTitle}</h1>
       </Toolbar>
     </AppBar>
   </Box>
