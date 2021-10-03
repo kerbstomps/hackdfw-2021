@@ -1,3 +1,5 @@
+const ObjectID = require('mongodb').ObjectID;
+
 module.exports = function(app, client, apiKey) {
     const getLabelsFromImage = require('./detectImage');
 
@@ -63,7 +65,7 @@ module.exports = function(app, client, apiKey) {
             if (!awsId)
                 throw new Error("AWS Identifier not found.");
 
-            console.log(wordDoc);
+            console.log("responding with word doc", wordDoc);
             res.json({
                 photo: imageInfo.data,
                 location: imageInfo.location,
@@ -71,7 +73,8 @@ module.exports = function(app, client, apiKey) {
                 nativeWord: nativeWord,
                 foreignLanguage: selectedForeignLanguageCode,
                 foreignWord,
-                awsIdentifier: awsId
+                awsIdentifier: awsId,
+                id: wordDoc._id
             });
 
         } catch (error) {
@@ -86,7 +89,7 @@ module.exports = function(app, client, apiKey) {
     app.post('/image', async (req, res, next) => {
         try {
             // req.body has imageData, location, photographer, language, word
-            const { imageData, location, photographer, language, word } = req.body;
+            const { imageData, location, photographer, language, word, id } = req.body;
 
             const wordsDetected = await getLabelsFromImage(req.body.imageData);
             console.log(wordsDetected);
@@ -100,8 +103,9 @@ module.exports = function(app, client, apiKey) {
             if (!collection)
                 return new Error("Collection does not exist");
 
-            const document = await collection.findOne({awsIdentifier: {$in: wordsDetected}});
+            const document = await collection.findOne({/*awsIdentifier: {$in: wordsDetected}, */_id: new ObjectID(id)});
             console.log(document);
+            debugger;
 
             if (document && document.translations[language] && document.translations[language]===word ) {
                 document.images[language] = document.images[language] || [];
@@ -110,7 +114,7 @@ module.exports = function(app, client, apiKey) {
                     location,
                     photographer
                 });
-                await collection.updateOne({awsIdentifier: {$in: wordsDetected}}, { $set: { images: document.images } });
+                await collection.updateOne({_id: new ObjectID(id)}, { $set: { images: document.images } });
 
                 return res.json({ validated: true, points: 100 });
             }
