@@ -59,6 +59,6 @@ POST /user?name=
 GET /translate?str=&to=
 ->
 {
-  translated: ["something in spanish idk", "..."]
+  translated: ["<foreign translation>", "..."]
 }
 ```
