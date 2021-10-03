@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
 
-const wordsToTranslate = ["Hi, what's your name?", "Hello"];
+const wordsToTranslate = ["Hi, what's your name?", "Hello", "Continue"];
 const apiHost = "http://3.133.115.92:3000"
 
 
@@ -77,13 +77,12 @@ async translateWords(words) {
 
   render() {
     let { name, translatedWords, submitted } = this.state;
-
-    console.log(translatedWords);
-
+    
     let prompt = translatedWords[0];
     let hello = translatedWords[1];
+    let submit = translatedWords[2];
 
-    return (
+    return (prompt && hello && submit ?
       <Layout>
         <Seo title="Home" />
         <Box
@@ -117,11 +116,13 @@ async translateWords(words) {
               sx={{ mt: 3, mb: 2 }}
               onClick={this.onSubmitName}
             >
-              Continue
+              {submit}
             </Button>
         </Box>
       </Layout>
-    );
+      :
+      <Layout/>
+      );
   }
 }
 
