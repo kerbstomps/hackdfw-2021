@@ -10,7 +10,7 @@ import CardMedia from "@mui/material/CardMedia";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PersonIcon from "@mui/icons-material/Person";
 import Button from "@mui/material/Button";
-import {PhotoCamera} from "@mui/icons-material";
+import { PhotoCamera } from "@mui/icons-material";
 import {
     Dialog,
     DialogActions,
@@ -21,12 +21,26 @@ import {
     Stack
 } from "@mui/material";
 import styled from "@emotion/styled";
-import {Component} from "react";
+import { Component } from "react";
 const langs = require("../data/languages.json");
 
 const apiHost = "http://3.133.115.92:3000"
 const photographer = "Adam";
 
+const wordsToTranslate = [
+    "An unexpected error occurred",
+    "Retry",
+    "Oh no!",
+    "Your image was not recognized as a",
+    "Try again",
+    "Congratulations!",
+    "Your image was uploaded and you gained",
+    "points!",
+    "Continue",
+    "Look around you for",
+    "Take or upload photo",
+    "Finding an image..."
+];
 
 const Input = styled("input")({
     display: "none",
@@ -49,7 +63,7 @@ const UploadedPicture = (props) => {
     const confirmUpload = async () => {
         const location = (await (await fetch("http://ip-api.com/json")).json()).country;
         const dataUri = props.uploaded;
-        const {nativeWord, awsIdentifier, id} = props;
+        const { nativeWord, awsIdentifier, id } = props;
 
         const lang = navigator.languages.filter(lang => lang.length === 2);
 
@@ -77,23 +91,21 @@ const UploadedPicture = (props) => {
         props.onUploadedImageResponse(resp);
     };
     return (<>
-        <Card sx={{maxWidth: 300}} className="card">
-        <CardMedia
-            component="img"
-            image={props.uploaded}
-            alt="Uploaded image"
-            className="card-media"
-        />
-    </Card>
-    <Button color="primary" aria-label="upload picture" component="span" variant="contained" onClick={confirmUpload}>Confirm Upload</Button>
+        <Card className="card">
+            <CardMedia
+                component="img"
+                image={props.uploaded}
+                alt="Uploaded image"
+                className="card-media"
+            />
+        </Card>
+        <Button color="primary" aria-label="upload picture" component="span" variant="contained" onClick={confirmUpload}>Confirm Upload</Button>
     </>);
 };
 
 class TakePicture extends Component {
     constructor(props) {
         super(props);
-
-        console.log("props:", props.location);
         
         this.state = {
             uploadedImage: undefined,
@@ -109,26 +121,48 @@ class TakePicture extends Component {
         this.onUploadedImageResponse = this.onUploadedImageResponse.bind(this);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         let { name } = this.state;
 
         this.updateData();
+        this.translateWords(wordsToTranslate);
     }
 
-    langCodeToLang(langCode){
-        const found = langs.find(x=>x.code === langCode);
+    async translateWords(words) {
+        if (words) {
+          const fields = words.join('&str=');
+          //const lang = navigator.languages.filter(lang => lang.length === 2)[0];
+          const lang = "es";
+
+          try {
+            const result = await (await fetch(`${apiHost}/translate?to=${lang}&str=${fields}&apiKey=hackdfw2021`)).json();
+            if (result) {
+              this.setState({
+                isLoaded: true,
+                translatedWords: result.translated
+              });
+            }
+            
+          } catch(error) {
+              console.log(error);
+          }
+        }
+      }
+      
+    langCodeToLang(langCode) {
+        const found = langs.find(x => x.code === langCode);
         return found ? found.description : null;
     }
 
-    onUploadedImageResponse(response){
-        const {validated, points} = response;
+    onUploadedImageResponse(response) {
+        const { validated, points } = response;
 
         console.log(validated, points);
 
-        if(validated){
-            this.setState({newPoints: points});
-        }else{
-            this.setState({validationFailure: true});
+        if (validated) {
+            this.setState({ newPoints: points });
+        } else {
+            this.setState({ validationFailure: true });
         }
     }
 
@@ -137,32 +171,31 @@ class TakePicture extends Component {
             const result = await (await fetch(`${apiHost}/word?nativeLanguage=en&apiKey=hackdfw2021`)).json();
 
             this.setState({
-                isLoaded: true,
                 apiData: result,
                 uploadedImage: undefined
             });
-        }catch(error) {
+        } catch (error) {
             this.setState({
-                isLoaded: true,
                 error
             });
         }
     }
 
     render() {
-        const {error, isLoaded, apiData, validationFailure, newPoints} = this.state;
-        const {foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id} = apiData || {};
+        const { error, isLoaded, apiData, validationFailure, newPoints, translatedWords } = this.state;
+        const { foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id } = apiData || {};
 
         const foreignLanguageNatural = this.langCodeToLang(foreignLanguage);
+        console.log(translatedWords);
 
         let isOpen = true;
 
         const imageUploaded = async (e) => {
             const elem = e.target;
 
-            if(elem.files.length) {
+            if (elem.files.length) {
                 const uploadedImage = await getBase64(elem.files[0]);
-                this.setState({uploadedImage})
+                this.setState({ uploadedImage })
                 console.log(uploadedImage);
             }
         };
@@ -172,15 +205,15 @@ class TakePicture extends Component {
         };
 
         const takeNewPicture = (wasSuccess) => {
-            if(wasSuccess) {
-                this.setState({validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined});
+            if (wasSuccess) {
+                this.setState({ validationFailure: false, newPoints: null, isLoaded: false, uploadedImage: undefined });
                 this.updateData();
-            }else{
-                this.setState({validationFailure: false, newPoints: null, uploadedImage: undefined});
+            } else {
+                this.setState({ validationFailure: false, newPoints: null, uploadedImage: undefined });
             }
         };
 
-        if(error) {
+        if (error && isLoaded) {
             return (<Dialog
                 open={isOpen}
                 onClose={handleClose}
@@ -188,7 +221,7 @@ class TakePicture extends Component {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    An unexpected error occurred
+                    {translatedWords[0]}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
@@ -197,12 +230,12 @@ class TakePicture extends Component {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} autoFocus>
-                        Retry
+                        {translatedWords[1]}
                     </Button>
                 </DialogActions>
             </Dialog>);
-        }else if(isLoaded) {
-            console.log(nativeWord);
+        } else if (isLoaded) {
+            
             return (<Layout>
                 {validationFailure ? <Dialog
                     open={isOpen}
@@ -211,16 +244,16 @@ class TakePicture extends Component {
                     aria-describedby="alert-dialog-description"
                 >
                     <DialogTitle id="alert-dialog-title">
-                        Uh oh!
+                        {translatedWords[2]}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Your image was not recognized as a {nativeWord}!
+                            {translatedWords[3]} {nativeWord}!
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={() => takeNewPicture(false)} autoFocus>
-                            Try again
+                            {translatedWords[4]}
                         </Button>
                     </DialogActions>
                 </Dialog> : undefined}
@@ -232,25 +265,25 @@ class TakePicture extends Component {
                     aria-describedby="alert-dialog-description"
                 >
                     <DialogTitle id="alert-dialog-title">
-                        Congratulations!
+                        {translatedWords[5]}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Your image was uploaded and you gained {newPoints} points!
+                            {translatedWords[6]} {newPoints} {translatedWords[7]}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={() => takeNewPicture(true)} autoFocus>
-                            Continue
+                            {translatedWords[8]}
                         </Button>
                     </DialogActions>
                 </Dialog> : undefined}
 
-                <Seo title="Take a picture!"/>
-                <h1>Look around you for {foreignWord} ({foreignLanguageNatural})</h1>
+                <Seo title="Take a picture!" />
+                <h1>{translatedWords[9]} <b>{foreignWord}</b> ({foreignLanguageNatural})</h1>
 
                 <Stack direction="row" spacing={1}>
-                    <Card sx={{maxWidth: 300}} className="card">
+                    <Card sx={{ maxWidth: 300 }} className="card">
                         <CardMedia
                             component="img"
                             image={photo}
@@ -259,36 +292,37 @@ class TakePicture extends Component {
                         />
                         <CardContent>
                             <Stack alignItems="center"
-                                   direction="row" spacing={1}>
-                                <PersonIcon/><Typography variant="body2"
-                                                         color="text.secondary">{photographer}</Typography>
+                                direction="row" spacing={1}>
+                                <PersonIcon /><Typography variant="body2"
+                                    color="text.secondary">{photographer}</Typography>
                             </Stack>
                             <Stack alignItems="center"
-                                   direction="row" spacing={1}>
-                                <LocationOnIcon/><Typography variant="body2"
-                                                             color="text.secondary">{location}</Typography>
+                                direction="row" spacing={1}>
+                                <LocationOnIcon /><Typography variant="body2"
+                                    color="text.secondary">{location}</Typography>
                             </Stack>
                         </CardContent>
                     </Card>
 
                     <div>
                         <label htmlFor="icon-button-file">
-                            <Input onChange={imageUploaded} accept="image/*" id="icon-button-file" type="file"/>
+                            <Input onChange={imageUploaded} accept="image/*" id="icon-button-file" type="file" />
                             <Button color="primary" aria-label="upload picture" component="span" variant="contained"
-                                    size="large" startIcon={<PhotoCamera/>}>
-                                Take or upload photo
+                                size="large" startIcon={<PhotoCamera />}>
+                                {translatedWords[10]}
                             </Button>
                         </label>
-
 
                         {this.state.uploadedImage && <UploadedPicture uploaded={this.state.uploadedImage} nativeWord={nativeWord} awsIdentifier={awsIdentifier} id={id} onUploadedImageResponse={this.onUploadedImageResponse} />}
                     </div>
                 </Stack>
-            </Layout>);
-        }else{
+            </Layout>
+            );
+        }
+         else {
             return (<Layout>
-                <Typography variant="overline" display="block" gutterBottom>Finding an image...
-                </Typography>
+                {/* <Typography variant="overline" display="block" gutterBottom>Finding an image...
+                </Typography> */}
                 <LinearProgress />
             </Layout>);
         }
