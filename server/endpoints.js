@@ -89,24 +89,21 @@ module.exports = function(app, client) {
                 return new Error("Collection does not exist");
             
             const document = await collection.findOne({awsIdentifier: {$in: wordsDetected}});
-            if (!document)
-                return res.json({ validated: false, points: 0});
-            
             console.log(document);
-
-            const wordFound = document.translations.contains([ word, language ]);
             
-            document.images[language] = document.images[language] || [];
-            document.images[language].push({
-                data: imageData,
-                location,
-                photographer
-            });
+            if (document && document.translations[language] && document.translations[language]===word ) {
+                document.images[language] = document.images[language] || [];
+                document.images[language].push({
+                    data: imageData,
+                    location,
+                    photographer
+                });
+                await collection.updateOne({awsIdentifier: {$in: wordsDetected}}, { $set: { images: document.images } });
             
-            await collection.updateOne({awsIdentifier: {$in: wordsDetected}}, { $set: { images: document.images } });
+                return res.json({ validated: true, points: 100 });
+            }
+            res.json({ validated: false, points: 0});
             
-            res.json({ validated: true, points: 100 });
-
             
         } catch (error) {
             console.error(error);
