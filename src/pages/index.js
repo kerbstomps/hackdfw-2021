@@ -1,4 +1,5 @@
 import * as React from "react"
+import { navigate } from "gatsby"
 
 import Layout from "../components/layout"
 import Seo from "../components/seo"
@@ -6,6 +7,7 @@ import Seo from "../components/seo"
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+
 
 const defaultPrompt = "Hi, what's your name?";
 const apiHost = "http://3.133.115.92:3000"
@@ -36,7 +38,9 @@ class IndexPage extends React.Component {
     let { name } = this.state;
     try {
         const result = await (await fetch(`${apiHost}/user?name=${name}&apiKey=hackdfw2021`)).json();
-        console.log(result);
+        if (result)
+          navigate("/takepicture/", { state: result });
+          
     } catch(error) {
         console.log(error);
     }
