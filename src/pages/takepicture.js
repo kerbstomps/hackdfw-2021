@@ -313,16 +313,16 @@ class TakePicture extends Component {
                 </Dialog>}
 
                 <Seo title="Take a picture!" />
-                <h1>{translatedWords[9]} <b>{foreignWord}</b> ({foreignLanguageNatural})</h1>
+                <h1>{translatedWords[9]} <i>{foreignWord}</i> ({foreignLanguageNatural})</h1>
 
                 <Stack direction="row" spacing={1}>
                     <Card sx={{ maxWidth: 300 }} className="card">
-                        <CardMedia
+                        {photo && <CardMedia
                             component="img"
                             image={photo}
                             alt="user image"
                             className="card-media"
-                        />
+                        />}
                         <CardContent>
                             <Stack alignItems="center"
                                 direction="row" spacing={1}>

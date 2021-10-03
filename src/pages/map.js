@@ -14,7 +14,8 @@ const geoUrl =
 const wordsToTranslate = [
     "Thanks for adding your image!",
     "Continue",
-    "you"
+    "you",
+    "Word Map"
 ];
 
 const apiHost = "http://3.133.115.92:3000"
@@ -37,7 +38,7 @@ class MapPage extends React.Component {
         if (words) {
             const fields = words.join('&str=');
             const lang = navigator.languages.filter(lang => lang.length === 2)[0];
-            
+
             try {
                 const result = await (await fetch(`${apiHost}/translate?to=${lang}&str=${fields}&apiKey=hackdfw2021`)).json();
                 if (result) {
@@ -76,6 +77,10 @@ class MapPage extends React.Component {
                 <Seo title="World map" />
 
                 <Typography variant="h3" component="div" gutterBottom>{translatedWords[0]}</Typography>
+
+                <Button sx={{marginBottom: "1.5em"}} onClick={() => navigate("/takepicture")} variant="contained">{translatedWords[1]}</Button>
+
+                <Typography variant="h4" component="div">{translatedWords[3]}</Typography>
                 <ComposableMap>
                     <ZoomableGroup zoom={1}>
                         <Geographies geography={geoUrl}>
@@ -115,7 +120,6 @@ class MapPage extends React.Component {
                         ))}
                     </ZoomableGroup>
                 </ComposableMap>
-                <Button onClick={() => navigate("/takepicture")} variant="contained">{translatedWords[1]}</Button>
             </Layout>
             :
             <Layout>
