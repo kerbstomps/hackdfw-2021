@@ -6,8 +6,10 @@ module.exports = function(app, client, apiKey) {
     app.use((req, res, next) => {
         if (apiKey === req.query.apiKey)
             next();
-        else
-            res.send("ERROR: Could not authenticate request.");
+        else {
+            res.status(403);
+            res.json({ message: "Error: Could not authenticate request." });
+        }
     });
 
     app.get('/word', async (req, res, next) => {
@@ -35,7 +37,11 @@ module.exports = function(app, client, apiKey) {
             if (!wordDoc)
                 throw new Error("Could not find random element in array.");
 
-            const nativeWord = Object.entries(wordDoc.translations).filter((translation) => translation[0]===nativeLanguage)[0][1];
+            const nativeTranslation = Object.entries(wordDoc.translations).filter((translation) => translation[0]===nativeLanguage)[0];
+            if (!nativeTranslation)
+                throw new Error("Could not find native translation in translations.");
+            
+            const nativeWord = nativeTranslation[1];
             if (!nativeWord)
                 throw new Error("Could not find native word in translations.");
 
@@ -80,7 +86,7 @@ module.exports = function(app, client, apiKey) {
         } catch (error) {
             console.error(error);
             res.status(500);
-            res.send(`ERROR: ${error}`);
+            res.json({ message: error.toString() });
         } finally {
             await client.close();
         }
@@ -123,7 +129,8 @@ module.exports = function(app, client, apiKey) {
 
         } catch (error) {
             console.error(error);
-            return `ERROR: ${error}`;
+            res.status(500);
+            res.json({ message: error.toString() });
         } finally {
             await client.close();
         }
@@ -141,7 +148,8 @@ module.exports = function(app, client, apiKey) {
 
         } catch (error) {
             console.error(error);
-            res.send(`ERROR: ${error}`);
+            res.status(500);
+            res.json({ message: error.toString() });
         } finally {
             await client.close();
         }
@@ -161,7 +169,8 @@ module.exports = function(app, client, apiKey) {
 
         } catch (error) {
             console.error(error);
-            res.send(`ERROR: ${error}`);
+            res.status(500);
+            res.json({ message: error.toString() });
         } finally {
             await client.close();
         }
