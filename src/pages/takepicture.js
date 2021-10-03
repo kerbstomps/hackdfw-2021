@@ -10,10 +10,21 @@ import CardMedia from "@mui/material/CardMedia";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import Button from "@mui/material/Button";
 import {PhotoCamera} from "@mui/icons-material";
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack} from "@mui/material";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    LinearProgress,
+    Stack
+} from "@mui/material";
 import styled from "@emotion/styled";
 import {Component} from "react";
-import { navigate } from "gatsby"
+const langs = require("../data/languages.json");
+
+const apiHost = "http://3.133.115.92:3000"
+const photographer = "Adam";
 
 
 const Input = styled("input")({
@@ -34,11 +45,35 @@ function getBase64(file) {
 }
 
 const UploadedPicture = (props) => {
-    console.log(props);
+    const confirmUpload = async () => {
+        const location = (await (await fetch("http://ip-api.com/json")).json()).country;
+        const dataUri = props.uploaded;
+        const {nativeWord, awsIdentifier, id} = props;
 
-    const confirmUpload = () => {
-        console.log(props.uploaded);
-        navigate("/map");
+        const lang = navigator.languages.filter(lang => lang.length === 2);
+
+        const postBody = {
+            location,
+            imageData: dataUri,
+            photographer,
+            language: lang.length ? lang[0] : "",
+            word: nativeWord,
+            awsIdentifier: awsIdentifier,
+            id
+        };
+
+        console.log("post body", postBody);
+
+        const resp = await (await fetch(`${apiHost}/image?apiKey=hackdfw2021`, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(postBody)
+        })).json();
+
+        console.log("got resp", resp);
     };
     return (<>
         <Card sx={{maxWidth: 300}} className="card">
@@ -70,9 +105,14 @@ class TakePicture extends Component {
         this.updateData();
     }
 
+    langCodeToLang(langCode){
+        const found = langs.find(x=>x.code === langCode);
+        return found ? found.description : null;
+    }
+
     async updateData() {
         try {
-            const result = await (await fetch("http://3.133.115.92:3000/word?nativeLanguage=en")).json();
+            const result = await (await fetch(`${apiHost}/word?nativeLanguage=en&apiKey=hackdfw2021`)).json();
 
             this.setState({
                 isLoaded: true,
@@ -88,8 +128,9 @@ class TakePicture extends Component {
 
     render() {
         const {error, isLoaded, apiData} = this.state;
-        const {foreignWord, foreignLanguage, location, photographer, photo} = apiData || {};
-        console.log(apiData);
+        const {foreignWord, foreignLanguage, location, photographer, photo, awsIdentifier, nativeWord, id} = apiData || {};
+
+        const foreignLanguageNatural = this.langCodeToLang(foreignLanguage);
 
         let isOpen = true;
 
@@ -130,10 +171,11 @@ class TakePicture extends Component {
                 </DialogActions>
             </Dialog>);
         }else if(isLoaded) {
+            console.log(nativeWord);
             return (<Layout>
                 <Seo title="Take a picture!"/>
-                <h1>Look around you for</h1>
-                <blockquote id="word">{foreignLanguage}: {foreignWord}</blockquote>
+                <h1>Look around you for {nativeWord}</h1>
+                <blockquote id="word">{foreignWord} ({foreignLanguageNatural})</blockquote>
 
                 <Stack direction="row" spacing={1}>
                     <Card sx={{maxWidth: 300}} className="card">
@@ -161,12 +203,17 @@ class TakePicture extends Component {
                             </Button>
                         </label>
 
-                        {this.state.uploadedImage && <UploadedPicture uploaded={this.state.uploadedImage}/>}
+
+                        {this.state.uploadedImage && <UploadedPicture uploaded={this.state.uploadedImage} nativeWord={nativeWord} awsIdentifier={awsIdentifier} id={id}/>}
                     </div>
                 </Stack>
             </Layout>);
         }else{
-            return (<div>Loading...</div>);
+            return (<Layout>
+                <Typography variant="overline" display="block" gutterBottom>Finding an image...
+                </Typography>
+                <LinearProgress />
+            </Layout>);
         }
     }
 }
