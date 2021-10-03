@@ -54,3 +54,11 @@ POST /user?name=
   points
 }
 ```
+## GET Translate
+```
+GET /translate?str=&to=
+->
+{
+  translated: ["something in spanish idk", "..."]
+}
+```
