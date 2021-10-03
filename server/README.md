@@ -13,7 +13,8 @@ GET /word?nativeLanguage=
   nativeWord,
   foreignLanguage,
   foreignWord,
-  awsIdentifier
+  awsIdentifier,
+  _id
 }
 ```
 ## POST Image
@@ -24,7 +25,8 @@ POST /image
   location,
   photographer,
   language,
-  word
+  word,
+  _id
 }
 -> 
 {
