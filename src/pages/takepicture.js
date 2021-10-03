@@ -135,8 +135,7 @@ class TakePicture extends Component {
     async translateWords(words) {
         if (words) {
           const fields = words.join('&str=');
-          //const lang = navigator.languages.filter(lang => lang.length === 2)[0];
-          const lang = "es";
+          const lang = navigator.languages.filter(lang => lang.length === 2)[0];
 
           try {
             const result = await (await fetch(`${apiHost}/translate?to=${lang}&str=${fields}&apiKey=hackdfw2021`)).json();
